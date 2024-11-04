@@ -1,27 +1,29 @@
-module.exports = function plugin(bot) {
+function plugin(bot) {
 
     let listener = function() {
-        // There is an entity at our cursor (blocking the cursor) - stop breaking
-        if(bot.entityAtCursor()) {
+        // There is an entity at our cursor (blocking the cursor) - stop breaking (Ignore "dropped items" as you can interact through them)
+        if(bot.entityAtCursor() && bot.entityAtCursor().name !== 'item') {
             if(bot.targetDigBlock) bot.stopDigging();
             return;
         }
 
         let blockAtCursor = bot.blockAtCursor();
+        if(!blockAtCursor) return;
 
         // The block at the cursor has changed, stop digging
-        if(blockAtCursor && bot.targetDigBlock && !blockAtCursor.position.equals(bot.targetDigBlock.position)) return bot.stopDigging();
+        if(blockAtCursor && bot.targetDigBlock && !blockAtCursor.position.equals(bot.targetDigBlock.position)) {
+            return bot.stopDigging();
+        }
 
-        // The tool in our hand has changed/broken
-        if(bot.heldItem !== bot.consistentMiner.heldItem) {
+        // The tool in our hand has changed/broken (Ignore durability if it's changed -1)
+        if(bot.heldItem && bot.heldItem !== bot.consistentMiner.heldItem && bot.heldItem.durabilityUsed !== bot.heldItem.durabilityUsed + 1) {
             bot.consistentMiner.heldItem = bot.heldItem;
-            // The bot was digging, stop digging
             if(bot.targetDigBlock) return bot.stopDigging();
         }
 
-        // The bot is already digging 
+        // The bot is already digging, cycle to keep running "safety checks"
         if(bot.targetDigBlock) return;
-        bot.dig(bot.blockAtCursor(), bot.consistentMiner.opts.forceLook, bot.consistentMiner.opts.digFace).catch(e => console.log('digging aborted'));
+        bot.dig(bot.blockAtCursor(), bot.consistentMiner.opts.forceLook, bot.consistentMiner.opts.digFace).catch();
 
     }
 
@@ -42,7 +44,5 @@ module.exports = function plugin(bot) {
             bot.off('physicsTick', listener);
         }
     }
-
-    bot.consistentMiner.start()
 
 }
