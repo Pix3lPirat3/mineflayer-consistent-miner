@@ -16,8 +16,8 @@ function plugin(bot) {
         }
 
         // The tool in our hand has changed/broken (Ignore durability if it's changed -1)
-        bot.consistentMiner.heldItem = bot.heldItem;
-        if(bot.heldItem && bot.heldItem !== bot.consistentMiner.heldItem && bot.heldItem.durabilityUsed !== bot.consistentMiner.heldItem.durabilityUsed + 1) {
+        if((bot.heldItem && bot.heldItem !== bot.consistentMiner.heldItem) && bot.heldItem.durabilityUsed !== bot.consistentMiner.heldItem.durabilityUsed + 1) {
+            bot.consistentMiner.heldItem = bot.heldItem;
             if(bot.targetDigBlock) return bot.stopDigging();
         }
 
