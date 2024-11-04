@@ -16,14 +16,14 @@ function plugin(bot) {
         }
 
         // The tool in our hand has changed/broken (Ignore durability if it's changed -1)
-        if(bot.heldItem && bot.heldItem !== bot.consistentMiner.heldItem && bot.heldItem.durabilityUsed !== bot.heldItem.durabilityUsed + 1) {
-            bot.consistentMiner.heldItem = bot.heldItem;
+        bot.consistentMiner.heldItem = bot.heldItem;
+        if(bot.heldItem && bot.heldItem !== bot.consistentMiner.heldItem && bot.heldItem.durabilityUsed !== bot.consistentMiner.heldItem.durabilityUsed + 1) {
             if(bot.targetDigBlock) return bot.stopDigging();
         }
 
         // The bot is already digging, cycle to keep running "safety checks"
         if(bot.targetDigBlock) return;
-        bot.dig(bot.blockAtCursor(), bot.consistentMiner.opts.forceLook, bot.consistentMiner.opts.digFace).catch();
+        bot.dig(bot.blockAtCursor(), bot.consistentMiner.opts.forceLook, bot.consistentMiner.opts.digFace).catch(e => e);
 
     }
 
